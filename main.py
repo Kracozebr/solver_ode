@@ -169,7 +169,7 @@ if __name__ == "__main__":
     t0 = 0
     tf = 1
     h = 0.001
-    print("hello")
+
 
     # Create an instance of the RungeKutta4 class
     rk4_solver = RungeKutta4(coupled_system_of_odes, initial_conditions, t0, tf, h)
