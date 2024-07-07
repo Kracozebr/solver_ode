@@ -3,6 +3,17 @@ from rk.rk4 import RungeKutta4
 
 x1 = 0
 
+def get_x1(x1, min_value=0.0, max_value=0.0087):
+    if x1 < min_value:
+        return min_value
+    
+    elif x1 > max_value:
+        return max_value
+    
+    else:
+        return x1
+
+
 def M1(n):
     a0 = 28.44 
     a1 = -0.27138
@@ -147,18 +158,19 @@ def get_MS(x1):
 
 def coupled_system_of_odes(t, vars):
         omega, fi, v, x1 = vars
+        corrected_x1 = get_x1(x1)
 
-        omega_dot = (M1(fi) - (get_DIAM(x1)) * GR - (get_DIAM(x1))**3 * KR * omega**2 - J2 * (fi0 / 2) * \
-                (get_DIAM(x1)) * (get_DP(x1)) * omega * v - 2 * m_sh * A * (get_RA(x1)) * omega * v) / \
-                (J1 + J2 * (get_DIAM(x1))**2 + m_sh * (get_RA(x1))**2) 
+        omega_dot = (M1(fi) - (get_DIAM(corrected_x1)) * GR - (get_DIAM(corrected_x1))**3 * KR * omega**2 - J2 * (fi0 / 2) * \
+                (get_DIAM(corrected_x1)) * (get_DP(corrected_x1)) * omega * v - 2 * m_sh * A * (get_RA(corrected_x1)) * omega * v) / \
+                (J1 + J2 * (get_DIAM(corrected_x1))**2 + m_sh * (get_RA(corrected_x1))**2) 
 
         fi_dot = omega
 
-        v_dot = (m_sh * A * (get_RA(x1)) * omega**2 - (get_MP(x1)) * v - Tetta * (get_CP(x1)) - np.sign(v) * \
-                get_P(fi, x1) * f_tr * ((get_TD(x1)) + Y1 * (get_YD(x1)))) / (get_MS(x1))
+        v_dot = (m_sh * A * (get_RA(corrected_x1)) * omega**2 - (get_MP(corrected_x1)) * v - Tetta * (get_CP(corrected_x1)) - np.sign(v) * \
+                get_P(fi, corrected_x1) * f_tr * ((get_TD(corrected_x1)) + Y1 * (get_YD(corrected_x1)))) / (get_MS(corrected_x1))
 
         x1_dot = v
-        print(f"t={t} x1={x1} x2={get_x2(x1)} dx1={get_dx1(x1)} dx2={get_dx2(x1)} omega_dot={omega_dot} omega={omega} v_dot={v_dot} x1_dot={x1_dot}")
+        print(f"t={t} x1={x1}({corrected_x1}) x2={get_x2(corrected_x1)} dx1={get_dx1(corrected_x1)} dx2={get_dx2(corrected_x1)} omega_dot={omega_dot} omega={omega} v_dot={v_dot} x1_dot={x1_dot}")
 
         return np.array([omega_dot, fi_dot, v_dot, x1_dot])
 
@@ -168,7 +180,7 @@ if __name__ == "__main__":
     initial_conditions = [360.0, 0.0, 0.0, 0.0] #omega, fi, v, x1
     t0 = 0
     tf = 1
-    h = 0.001
+    h = 0.00001
 
 
     # Create an instance of the RungeKutta4 class
